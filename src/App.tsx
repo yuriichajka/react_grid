@@ -1,59 +1,41 @@
 import React, {useState} from 'react';
 import Paper from '@material-ui/core/Paper';
 import {
-    SelectionState,
-    PagingState,
-    IntegratedPaging,
-    IntegratedSelection,
-} from '@devexpress/dx-react-grid'
-import {
     Grid,
     Table,
     TableHeaderRow,
-    TableSelection,
-    PagingPanel,
 } from '@devexpress/dx-react-grid-material-ui';
-
-import { generateRows } from "./demo-data/generator";
-
+import {
+    generateRows,
+    employeeTaskValues,
+} from './demo-data/generator';
 
 function App() {
     const [columns] = useState([
-        { name: 'name', title: 'Name'},
-        { name: 'gender', title: 'Gender'},
-        { name: 'city', title: 'City'},
-        { name: 'car', title: 'Car'},
+        { name: 'subject', title: 'Subject (with enabled word wrap)' },
+        { name: 'startDate', title: 'Start Date' },
+        { name: 'dueDate', title: 'Due Date' },
+        { name: 'priority', title: 'Priority' },
+        { name: 'status', title: 'Status' },
     ]);
-    const [rows] = useState(generateRows({ length: 20}));
-    const [selection, setSelection] = useState([])
+    // @ts-ignore
+    const [rows] = useState(generateRows({ columnValues: employeeTaskValues, length: 8 }));
+    const [tableColumnExtensions] = useState([
+        { columnName: 'subject', wordWrapEnabled: true },
+    ]);
 
     return (
       <div>
-          <span>
-              Total rows selected:
-              {' '}
-              {selection.length}
-          </span>
-          <Paper elevation={14}>
+          <Paper>
               <Grid
                   rows={rows}
                   columns={columns}
               >
-                  <PagingState
-                      defaultCurrentPage={0}
-                      pageSize={5}
-                  />
-                  <SelectionState
-                      selection={selection}
+                  <Table
                       // @ts-ignore
-                      onSelectionChange={setSelection}
+                      columnExtensions={tableColumnExtensions}
                   />
-                  <IntegratedPaging />
-                  <IntegratedSelection />
-                  <Table />
                   <TableHeaderRow />
-                  <TableSelection showSelectAll />
-                  <PagingPanel />
               </Grid>
           </Paper>
       </div>
