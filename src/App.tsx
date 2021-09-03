@@ -1,6 +1,13 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import Paper from '@material-ui/core/Paper';
-import { EditingState } from '@devexpress/dx-react-grid';
+import Chip from '@material-ui/core/Chip';
+import Input from '@material-ui/core/Input';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import {
+    DataTypeProvider,
+    EditingState,
+} from '@devexpress/dx-react-grid';
 import {
     Grid,
     Table,
@@ -8,58 +15,56 @@ import {
     TableEditRow,
     TableEditColumn,
 } from '@devexpress/dx-react-grid-material-ui';
-import { generateRows, defaultNestedColumnValues } from './demo-data/generator';
+
+import {
+    generateRows,
+    globalSalesValues,
+} from './demo-data/generator';
 
 // @ts-ignore
 const getRowId = row => row.id;
 
+// @ts-ignore
+const BooleanFormatter = ({ value }) => <Chip label={value ? 'Yes' : 'No'} />;
+// @ts-ignore
+const BooleanEditor = ({ value, onValueChange }) => (
+    <Select
+        input={<Input />}
+        value={value ? 'Yes' : 'No'}
+        onChange={event => onValueChange(event.target.value === 'Yes')}
+        style={{ width: '100%' }}
+    >
+        <MenuItem value="Yes">
+            Yes
+        </MenuItem>
+        <MenuItem value="No">
+            No
+        </MenuItem>
+    </Select>
+);
+// @ts-ignore
+const BooleanTypeProvider = props => (
+    <DataTypeProvider
+        formatterComponent={BooleanFormatter}
+        editorComponent={BooleanEditor}
+        {...props}
+    />
+);
+
 function App() {
     const [columns] = useState([
-        {
-            name: 'firstName',
-            title: 'First Name',
-            // @ts-ignore
-            getCellValue: row => (row.user ? row.user.firstName : undefined),
-        },
-        {
-            name: 'lastName',
-            title: 'Last Name',
-            // @ts-ignore
-            getCellValue: row => (row.user ? row.user.lastName : undefined),
-        },
-        {
-            name: 'car',
-            title: 'Car',
-            // @ts-ignore
-            getCellValue: row => (row.car ? row.car.model : undefined),
-        },
-        { name: 'position', title: 'Position' },
-        { name: 'city', title: 'City' },
+        { name: 'customer', title: 'Customer' },
+        { name: 'product', title: 'Product' },
+        { name: 'units', title: 'Units' },
+        { name: 'shipped', title: 'Shipped' },
     ]);
     const [rows, setRows] = useState(generateRows({
         // @ts-ignore
-        columnValues: { id: ({ index }) => index, ...defaultNestedColumnValues },
+        columnValues: { id: ({ index }) => index, ...globalSalesValues },
         length: 8,
     }));
-    const [editingColumnExtensions] = useState([
-        {
-            columnName: 'firstName',
-            // @ts-ignore
-            createRowChange: (row, value) => ({ user: { ...row.user, firstName: value } }),
-        },
-        {
-            columnName: 'lastName',
-            // @ts-ignore
-            createRowChange: (row, value) => ({ user: { ...row.user, lastName: value } }),
-        },
-        {
-            columnName: 'car',
-            // @ts-ignore
-            createRowChange: (row, value) => ({ car: { model: value } }),
-        },
-    ]);
-
-    // @ts-ignore
+    const [booleanColumns] = useState(['shipped']);
+// @ts-ignore
     const commitChanges = ({ added, changed, deleted }) => {
         let changedRows;
         if (added) {
@@ -79,6 +84,7 @@ function App() {
             changedRows = rows.map(row => (changed[row.id] ? { ...row, ...changed[row.id] } : row));
         }
         if (deleted) {
+            // @ts-ignore
             const deletedSet = new Set(deleted);
             // @ts-ignore
             changedRows = rows.filter(row => !deletedSet.has(row.id));
@@ -94,16 +100,24 @@ function App() {
               <Grid
                   rows={rows}
                   columns={columns}
+                  getRowId={getRowId}
               >
+                  <BooleanTypeProvider
+                      for={booleanColumns}
+                  />
                   <EditingState
-                      columnExtensions={editingColumnExtensions}
                       // @ts-ignore
                       onCommitChanges={commitChanges}
+                      defaultEditingRowIds={[0]}
                   />
                   <Table />
                   <TableHeaderRow />
                   <TableEditRow />
-                  <TableEditColumn showAddCommand showEditCommand showDeleteCommand />
+                  <TableEditColumn
+                      showAddCommand
+                      showEditCommand
+                      showDeleteCommand
+                  />
               </Grid>
           </Paper>
       </div>
