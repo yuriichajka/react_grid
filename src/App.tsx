@@ -6,23 +6,22 @@ import {
     TableHeaderRow,
 } from '@devexpress/dx-react-grid-material-ui';
 import {
-    generateRows,
-    employeeTaskValues,
-} from './demo-data/generator';
+    SortingState,
+    IntegratedSorting,
+} from '@devexpress/dx-react-grid';
+import { generateRows } from './demo-data/generator';
+
+
 
 function App() {
     const [columns] = useState([
-        { name: 'subject', title: 'Subject (with enabled word wrap)' },
-        { name: 'startDate', title: 'Start Date' },
-        { name: 'dueDate', title: 'Due Date' },
-        { name: 'priority', title: 'Priority' },
-        { name: 'status', title: 'Status' },
+        { name: 'name', title: 'Name' },
+        { name: 'gender', title: 'Gender' },
+        { name: 'city', title: 'City' },
+        { name: 'car', title: 'Car' },
     ]);
-    // @ts-ignore
-    const [rows] = useState(generateRows({ columnValues: employeeTaskValues, length: 8 }));
-    const [tableColumnExtensions] = useState([
-        { columnName: 'subject', wordWrapEnabled: true },
-    ]);
+    const [rows] = useState(generateRows({ length: 8 }));
+    const [sorting, setSorting] = useState([{ columnName: 'car', direction: 'asc' }]);
 
     return (
       <div>
@@ -31,11 +30,14 @@ function App() {
                   rows={rows}
                   columns={columns}
               >
-                  <Table
+                  <SortingState
                       // @ts-ignore
-                      columnExtensions={tableColumnExtensions}
+                      sorting={sorting}
+                      onSortingChange={setSorting}
                   />
-                  <TableHeaderRow />
+                  <IntegratedSorting />
+                  <Table />
+                  <TableHeaderRow showSortingControls />
               </Grid>
           </Paper>
       </div>
